@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>User</title><link rel="stylesheet" href="styles.css"/></head>
+<body>
+<div class="container">
+  <h2>User Portal</h2>
+  <div class="card"><h3>Vendors</h3><ul id="vendors"></ul></div>
+  <div class="card"><h3>Products</h3><ul id="products"></ul></div>
+  <div class="card"><h3>Cart</h3><ul id="cart"></ul><p>Total: <span id="total">0</span></p><button id="checkout">Checkout</button></div>
+  <div class="card"><h3>Orders</h3><ul id="orders"></ul></div>
+  <p><a href="index.html">Logout</a></p>
+</div>
+<script>
+  let cart = [];
+  function renderCart(){ const ul = document.getElementById('cart'); ul.innerHTML=''; let tot=0; cart.forEach((c,i)=>{ const li=document.createElement('li'); li.innerText=c.name+' - '+c.price; ul.appendChild(li); tot+=c.price; }); document.getElementById('total').innerText = tot; }
+  async function loadProducts(){ const r = await fetch('/api/items'); const items = await r.json(); const ul = document.getElementById('products'); ul.innerHTML=''; items.forEach(it=>{ const li=document.createElement('li'); li.innerText = it.name+' - '+it.price; const b=document.createElement('button'); b.innerText='Add'; b.onclick=()=>{ cart.push(it); renderCart(); }; li.appendChild(b); ul.appendChild(li); }); }
+  async function loadVendors(){ const r = await fetch('/api/vendors'); const v = await r.json(); const ul = document.getElementById('vendors'); ul.innerHTML=''; v.forEach(x=>{ const li=document.createElement('li'); li.innerText = x.username; ul.appendChild(li); }); }
+  document.getElementById('checkout').addEventListener('click', async ()=>{
+    const total = cart.reduce((s,i)=>s+i.price,0);
+    const res = await fetch('/api/user/createOrder',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({items:cart, total, user:'guest'})});
+    alert('Order placed');
+    cart=[]; renderCart(); loadOrders();
+  });
+  async function loadOrders(){ const r = await fetch('/api/user/orders'); const orders = await r.json(); const ul = document.getElementById('orders'); ul.innerHTML=''; orders.forEach(o=>{ const li=document.createElement('li'); li.innerText = o.id + ' | ' + o.status + ' | total:'+o.total; ul.appendChild(li); }); }
+  loadProducts(); loadVendors(); loadOrders(); renderCart();
+</script>
+</body></html>

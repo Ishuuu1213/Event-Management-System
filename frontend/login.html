@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"/><title>Login</title><link rel="stylesheet" href="styles.css"/></head>
+<body>
+<div class="container">
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="hidden" id="role"/>
+    <label>Username</label><input id="username" required/>
+    <label>Password</label><input id="password" type="password" required/>
+    <button type="submit">Login</button>
+  </form>
+  <p id="msg"></p>
+  <p><a href="index.html">Back</a></p>
+</div>
+<script>
+  const params = new URLSearchParams(location.search);
+  document.getElementById('role').value = params.get('role') || 'user';
+  document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const u = document.getElementById('username').value;
+    const p = document.getElementById('password').value;
+    const res = await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    if(res.ok){
+      const data = await res.json();
+      const role = data.user.role || (params.get('role') || 'user');
+      if(role==='admin' || data.user.username==='admin') location.href='admin.html';
+      else if(role==='vendor') location.href='vendor.html';
+      else location.href='user.html';
+    } else {
+      document.getElementById('msg').innerText='Login failed';
+    }
+  });
+</script>
+</body>
+</html>

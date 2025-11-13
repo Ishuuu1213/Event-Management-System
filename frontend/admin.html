@@ -1,1 +1,56 @@
-
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Admin</title><link rel="stylesheet" href="styles.css"/></head>
+<body>
+<div class="container">
+  <h2>Admin - Maintenance Menu</h2>
+  <div class="card">
+    <h3>Add User</h3>
+    <form id="addUser">
+      <input placeholder="username" id="u_name"/><input placeholder="password" id="u_pass"/>
+      <button>Add User</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Add Vendor</h3>
+    <form id="addVendor">
+      <input placeholder="vendor name" id="v_name"/><input placeholder="password" id="v_pass"/>
+      <button>Add Vendor</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Add Membership</h3>
+    <form id="addMem">
+      <input placeholder="membership name" id="m_name"/>
+      <button>Add Membership</button>
+    </form>
+  </div>
+  <div class="card"><h3>Data Snapshot</h3><pre id="snapshot">Loading...</pre></div>
+  <p><a href="index.html">Logout</a></p>
+</div>
+<script>
+  async function loadSnapshot(){
+    const r = await fetch('/api/admin/data');
+    const d = await r.json();
+    document.getElementById('snapshot').innerText = JSON.stringify(d, null, 2);
+  }
+  document.getElementById('addUser').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const body = {username:document.getElementById('u_name').value, password:document.getElementById('u_pass').value};
+    await fetch('/api/admin/addUser',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    loadSnapshot();
+  });
+  document.getElementById('addVendor').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const body = {username:document.getElementById('v_name').value, password:document.getElementById('v_pass').value};
+    await fetch('/api/admin/addVendor',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    loadSnapshot();
+  });
+  document.getElementById('addMem').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const body = {name:document.getElementById('m_name').value};
+    await fetch('/api/admin/addMembership',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    loadSnapshot();
+  });
+  loadSnapshot();
+</script>
+</body></html>

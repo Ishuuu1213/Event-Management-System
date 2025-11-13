@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Vendor</title><link rel="stylesheet" href="styles.css"/></head>
+<body>
+<div class="container">
+  <h2>Vendor Portal</h2>
+  <div class="card">
+    <h3>Add Item</h3>
+    <form id="addItem">
+      <input id="iname" placeholder="Item name"/><input id="iprice" placeholder="Price" type="number"/>
+      <button>Add Item</button>
+    </form>
+  </div>
+  <div class="card"><h3>Your Items</h3><ul id="items"></ul></div>
+  <div class="card"><h3>Request Item (creates order)</h3>
+    <form id="reqItem"><input id="req_for" placeholder="Requested by"/><input id="req_item" placeholder="Item ID"/><button>Request</button></form>
+  </div>
+  <p><a href="index.html">Logout</a></p>
+</div>
+<script>
+  async function loadItems(){
+    const r = await fetch('/api/vendor/items');
+    const items = await r.json();
+    const ul = document.getElementById('items'); ul.innerHTML='';
+    items.forEach(it=>{ const li = document.createElement('li'); li.innerText = it.id + ' | ' + it.name + ' | ' + it.price; ul.appendChild(li); });
+  }
+  document.getElementById('addItem').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const body = {name:document.getElementById('iname').value, price: parseFloat(document.getElementById('iprice').value||0)};
+    await fetch('/api/vendor/addItem',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    loadItems();
+  });
+  document.getElementById('reqItem').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const body = {requestedBy:document.getElementById('req_for').value, itemId:document.getElementById('req_item').value};
+    await fetch('/api/vendor/requestItem',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    alert('Request created');
+  });
+  loadItems();
+</script>
+</body></html>
